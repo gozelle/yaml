@@ -8,7 +8,7 @@
 //
 // See also http://ghodss.com/2014/the-right-way-to-handle-yaml-in-golang
 //
-package yaml  // import "github.com/ghodss/yaml"
+package yaml // import "github.com/gozelle/yaml"
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ import (
 	"io"
 	"reflect"
 	"strconv"
-
+	
 	"gopkg.in/yaml.v2"
 )
 
@@ -28,12 +28,12 @@ func Marshal(o interface{}) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling into JSON: %v", err)
 	}
-
+	
 	y, err := JSONToYAML(j)
 	if err != nil {
 		return nil, fmt.Errorf("error converting JSON to YAML: %v", err)
 	}
-
+	
 	return y, nil
 }
 
@@ -59,12 +59,12 @@ func unmarshal(f func(in []byte, out interface{}) (err error), y []byte, o inter
 	if err != nil {
 		return fmt.Errorf("error converting YAML to JSON: %v", err)
 	}
-
+	
 	err = jsonUnmarshal(bytes.NewReader(j), o, opts...)
 	if err != nil {
 		return fmt.Errorf("error unmarshaling JSON: %v", err)
 	}
-
+	
 	return nil
 }
 
@@ -96,7 +96,7 @@ func JSONToYAML(j []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	// Marshal this object into YAML.
 	return yaml.Marshal(jsonObj)
 }
@@ -130,7 +130,7 @@ func yamlToJSON(y []byte, jsonTarget *reflect.Value, yamlUnmarshal func([]byte, 
 	if err != nil {
 		return nil, err
 	}
-
+	
 	// YAML objects are not completely compatible with JSON objects (e.g. you
 	// can have non-string keys in YAML). So, convert the YAML-compatible object
 	// to a JSON-compatible object, failing with an error if irrecoverable
@@ -139,14 +139,14 @@ func yamlToJSON(y []byte, jsonTarget *reflect.Value, yamlUnmarshal func([]byte, 
 	if err != nil {
 		return nil, err
 	}
-
+	
 	// Convert this object to JSON and return the data.
 	return json.Marshal(jsonObj)
 }
 
 func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (interface{}, error) {
 	var err error
-
+	
 	// Resolve jsonTarget to a concrete value (i.e. not a pointer or an
 	// interface). We pass decodingNull as false because we're not actually
 	// decoding into the value, we're just checking if the ultimate target is a
@@ -161,7 +161,7 @@ func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (in
 			jsonTarget = &pv
 		}
 	}
-
+	
 	// If yamlObj is a number or a boolean, check if jsonTarget is a string -
 	// if so, coerce.  Else return normal.
 	// If yamlObj is a map or array, find the field that each key is
@@ -213,7 +213,7 @@ func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (in
 				return nil, fmt.Errorf("Unsupported map key of type: %s, key: %+#v, value: %+#v",
 					reflect.TypeOf(k), k, v)
 			}
-
+			
 			// jsonTarget should be a struct or a map. If it's a struct, find
 			// the field it's going to map to and pass its reflect.Value. If
 			// it's a map, find the element type of the map and pass the
@@ -268,7 +268,7 @@ func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (in
 		// We need to recurse into arrays in case there are any
 		// map[interface{}]interface{}'s inside and to convert any
 		// numbers to strings.
-
+		
 		// If jsonTarget is a slice (which it really should be), find the
 		// thing it's going to map to. If it's not a slice, just pass nil
 		// - JSON conversion will error for us if it's a real issue.
@@ -282,7 +282,7 @@ func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (in
 				jsonSliceElemValue = &ev
 			}
 		}
-
+		
 		// Make and use a new array.
 		arr := make([]interface{}, len(typedYAMLObj))
 		for i, v := range typedYAMLObj {
@@ -321,6 +321,6 @@ func convertToJSONableObject(yamlObj interface{}, jsonTarget *reflect.Value) (in
 		}
 		return yamlObj, nil
 	}
-
+	
 	return nil, nil
 }
